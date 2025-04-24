@@ -198,29 +198,60 @@ function Medications() {
                 <Box>
                   <Flex alignItems="center" mb={2}>
                     <Icon as={CiPill} color="teal.500" boxSize={5} mr={2} />
-                    <Text fontWeight="bold" fontSize="lg">
+                    <Text fontWeight="bold" fontSize="md">
                       {medication.medName}
                     </Text>
-                    {medication.quantity !== undefined &&
-                      medication.quantity <= medication.refillThreshold && (
-                        <Tooltip label="Refill needed">
-                          <Box color="orange.500" ml={2}>
-                            <FaExclamationTriangle />
-                          </Box>
-                        </Tooltip>
-                      )}
                   </Flex>
+                  
+                  {/* Display medication description if available */}
+                  {medication.medDescription && (
+                    <Text fontSize="sm" color="gray.600" mb={2}>
+                      {medication.medDescription}
+                    </Text>
+                  )}
+                  
+                  {/* Display medication price if available */}
+                  {medication.medPrice && (
+                    <Text fontSize="sm" color="green.600" mb={2} fontWeight="medium">
+                      {medication.medPrice}
+                    </Text>
+                  )}
+                  
                   <Badge
                     colorScheme="teal"
                     borderRadius="full"
                     px={2}
                     py={0.5}
-                    mb={2}
+                    mr={1}
                   >
                     {medication.dosage} {medication.dosageUnit}
                   </Badge>
+                  
+                  {/* Display instructions if available */}
+                  {medication.instructions && (
+                    <Text fontSize="sm" color="gray.600" mt={2}>
+                      <Text as="span" fontWeight="medium">Instructions:</Text> {medication.instructions}
+                    </Text>
+                  )}
 
-                  {/* Display quantity information */}
+                  {medication.needsRefill && (
+                    <Flex
+                      mt={2}
+                      mb={2}
+                      alignItems="center"
+                      color="orange.500"
+                      bg="orange.50"
+                      p={1}
+                      pl={2}
+                      borderRadius="md"
+                    >
+                      <Icon as={FaExclamationTriangle} color="orange.500" mr={1} />
+                      <Text fontSize="sm" fontWeight="medium">
+                        Refill needed soon
+                      </Text>
+                    </Flex>
+                  )}
+
                   {medication.quantity !== undefined && (
                     <Flex alignItems="center" mt={2} mb={2}>
                       <Badge

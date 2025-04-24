@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   FormControl,
@@ -24,6 +24,8 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
   FormHelperText,
+  Text,
+  Box,
 } from '@chakra-ui/react';
 import { useDisclosure } from '@chakra-ui/react';
 import { AddIcon, MinusIcon } from '@chakra-ui/icons';
@@ -33,15 +35,19 @@ import MedAutoComplete from './MedAutoComplete';
 import moment from 'moment';
 import { auth, firestore } from '../../../firebase/firebase.js';
 import firebase from 'firebase/compat/app';
+import medicationData from '../../../data/medications.json';
 
 function AddMed() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [medName, setMedName] = useState('');
+  const [medDescription, setMedDescription] = useState('');
+  const [medPrice, setMedPrice] = useState('');
   const [dosage, setDosage] = useState('');
   const [dosageUnit, setDosageUnit] = useState('mg');
   const [timesOfDay, setTimesOfDay] = useState([]);
   const [quantity, setQuantity] = useState('');
   const [refillThreshold, setRefillThreshold] = useState('');
+  const [instructions, setInstructions] = useState('');
   const [formErrors, setFormErrors] = useState({
     medName: '',
     dosage: '',
@@ -49,6 +55,24 @@ function AddMed() {
     quantity: '',
     refillThreshold: '',
   });
+
+  // Update the medication details when the name changes
+  useEffect(() => {
+    if (medName) {
+      // Find the medication in the database
+      const medication = medicationData.find(
+        med => med.name.toLowerCase() === medName.toLowerCase()
+      );
+      
+      if (medication) {
+        setMedDescription(medication.description || '');
+        setMedPrice(medication.ppv || '');
+      } else {
+        setMedDescription('');
+        setMedPrice('');
+      }
+    }
+  }, [medName]);
 
   const addTimeOfDay = () => {
     setTimesOfDay([...timesOfDay, '']);
@@ -131,8 +155,11 @@ function AddMed() {
   
         const medicationData = {
           medName,
+          medDescription,
+          medPrice,
           dosage,
           dosageUnit,
+          instructions,
           timesOfDay,
           timeEvents: timesOfDay.length,
           selected: Array(timesOfDay.length).fill(0), // Initialize "selected" array with 0 values
@@ -156,11 +183,14 @@ function AddMed() {
             
             // Reset form fields
             setMedName('');
+            setMedDescription('');
+            setMedPrice('');
             setDosage('');
             setDosageUnit('mg');
             setTimesOfDay([]);
             setQuantity('');
             setRefillThreshold('');
+            setInstructions('');
           })
           .catch((error) => {
             console.error('Error storing medication in Firebase:', error);
@@ -186,6 +216,17 @@ function AddMed() {
               <FormLabel>Medication name</FormLabel>
               <MedAutoComplete value={medName} onChange={setMedName} />
               <FormErrorMessage>{formErrors.medName}</FormErrorMessage>
+              
+              {medDescription && (
+                <Text fontSize="sm" color="gray.600" mt={1}>
+                  {medDescription}
+                </Text>
+              )}
+              {medPrice && (
+                <Text fontSize="sm" color="green.600" mt={1} fontWeight="bold">
+                  Price: {medPrice}
+                </Text>
+              )}
             </FormControl>
 
             <FormControl isInvalid={formErrors.dosage !== ''} mb={4}>
@@ -200,10 +241,21 @@ function AddMed() {
                   <Select value={dosageUnit} onChange={(e) => setDosageUnit(e.target.value)}>
                     <option value="mg">mg</option>
                     <option value="mL">mL</option>
+                    <option value="mcg">mcg</option>
+                    <option value="g">g</option>
                   </Select>
                 </InputRightElement>
               </InputGroup>
               <FormErrorMessage>{formErrors.dosage}</FormErrorMessage>
+            </FormControl>
+
+            <FormControl mb={4}>
+              <FormLabel>Instructions (optional)</FormLabel>
+              <Input
+                placeholder="Take with food, etc."
+                value={instructions}
+                onChange={(e) => setInstructions(e.target.value)}
+              />
             </FormControl>
 
             <FormControl isInvalid={formErrors.quantity !== ''} mb={4}>
@@ -232,34 +284,38 @@ function AddMed() {
             </FormControl>
 
             <FormControl isInvalid={formErrors.timesOfDay !== ''} mb={4}>
-              <FormLabel>Frequency</FormLabel>
-              <Stack spacing={2}>
-                {timesOfDay.map((time, index) => (
-                  <HStack key={index}>
-                    <Datetime
-                      dateFormat={false}
-                      inputProps={{
-                        placeholder: 'HH : mm',
-                      }}
-                      onChange={(momentObj) =>
-                        handleTimeOfDayChange(index, momentObj)
-                      }
-                      renderInput={(props) => <Input {...props} />}
-                    />
-                    <IconButton
-                      aria-label="Remove time"
-                      icon={<MinusIcon />}
-                      onClick={() => removeTimeOfDay(index)}
-                    />
-                  </HStack>
-                ))}
-                <FormErrorMessage>{formErrors.timesOfDay}</FormErrorMessage>
-                <IconButton
-                  aria-label="Add time"
-                  icon={<AddIcon />}
-                  onClick={addTimeOfDay}
-                />
-              </Stack>
+              <FormLabel>Time(s) of Day</FormLabel>
+              {timesOfDay.map((time, index) => (
+                <HStack key={index} mb={2}>
+                  <Datetime
+                    dateFormat={false}
+                    timeFormat="HH:mm"
+                    value={time ? moment(time, 'HH:mm') : null}
+                    onChange={(value) => handleTimeOfDayChange(index, value)}
+                    inputProps={{
+                      placeholder: 'Select time',
+                      readOnly: true,
+                    }}
+                  />
+                  <IconButton
+                    icon={<MinusIcon />}
+                    onClick={() => removeTimeOfDay(index)}
+                    colorScheme="red"
+                    size="sm"
+                  />
+                </HStack>
+              ))}
+              <Button
+                leftIcon={<AddIcon />}
+                onClick={addTimeOfDay}
+                colorScheme="teal"
+                variant="outline"
+                size="sm"
+                mt={2}
+              >
+                Add Time
+              </Button>
+              <FormErrorMessage>{formErrors.timesOfDay}</FormErrorMessage>
             </FormControl>
           </ModalBody>
           <ModalFooter>

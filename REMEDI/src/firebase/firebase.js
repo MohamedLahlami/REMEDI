@@ -1,19 +1,22 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD8sIGZvZ3Gv9yy7FCm7DG6pDrTK9zwxDQ",
-  authDomain: "pharm-assist-96bbc.firebaseapp.com",
-  projectId: "pharm-assist-96bbc",
-  storageBucket: "pharm-assist-96bbc.appspot.com",
-  messagingSenderId: "659730175383",
-  appId: "1:659730175383:web:32440650cef3957185a0d2",
-  measurementId: "G-1L4WCKB78D"
+  apiKey: "AIzaSyDYBF1RkZjm23ht-aDAD1EKwuiWdCqG93E",
+  authDomain: "remedi-61fe2.firebaseapp.com",
+  projectId: "remedi-61fe2",
+  storageBucket: "remedi-61fe2.firebasestorage.app",
+  messagingSenderId: "523802647762",
+  appId: "1:523802647762:web:79c1ff863f40edc7d1610b",
+  measurementId: "G-CK07Y7PJBQ",
 };
 
 // Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();

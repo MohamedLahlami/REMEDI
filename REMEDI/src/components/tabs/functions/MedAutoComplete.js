@@ -16,12 +16,9 @@ function MedAutoComplete({ value, onChange }) {
       return;
     }
 
-    // Filter the medicationData based on the input value in both names and brandNames
-    const filteredTerms = medicationData.medications.filter((medication) =>
-      medication.name.toLowerCase().includes(inputValue.toLowerCase()) ||
-      medication.brandNames.some((brandName) =>
-        brandName.toLowerCase().includes(inputValue.toLowerCase())
-      )
+    // Filter the medicationData based on the input value in medication names
+    const filteredTerms = medicationData.filter((medication) =>
+      medication.name.toLowerCase().includes(inputValue.toLowerCase())
     );
 
     // Limit the matched terms to a maximum of 5 results
@@ -65,7 +62,17 @@ function MedAutoComplete({ value, onChange }) {
                 mb={2} // Add margin bottom between list elements
               >
                 <SearchIcon color="blue.500" mr={2} />
-                {medication.brandNames[0]} ({medication.name})
+                {medication.name} 
+                {medication.description && (
+                  <Box as="span" fontSize="sm" color="gray.600" ml={1}>
+                    ({medication.description})
+                  </Box>
+                )}
+                {medication.ppv && (
+                  <Box as="span" fontSize="sm" color="green.600" ml={2}>
+                    {medication.ppv}
+                  </Box>
+                )}
               </ListItem>
             ))}
           </UnorderedList>

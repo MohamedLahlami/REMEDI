@@ -1,0 +1,25 @@
+.App {
+  text-align: center;
+}
+
+.logo {
+  height: 100px;
+  width: 240px;
+  margin-left: 5px;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+/* Add smooth transitions for interactive elements */
+button, a {
+  transition: all 0.3s ease;
+}
+
+/* Add a subtle shadow to focused elements */
+:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.3);
+}

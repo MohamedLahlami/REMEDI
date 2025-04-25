@@ -6,6 +6,7 @@ import UserHome from './components/UserHome';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -14,12 +15,17 @@ function App() {
       } else {
         setUser(null);
       }
+      setLoading(false);
     });
 
     return () => {
       unsubscribe();
     };
   }, []);
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
 
   return (
     <>

@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext } from "react";
+import React, { useState, createContext, useContext, useEffect } from "react";
 import {
   IconButton,
   Avatar,
@@ -46,7 +46,14 @@ const SidebarContext = createContext();
 
 export default function Sidebar({ firstName, lastName }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [activeTab, setActiveTab] = useState("");
+  const [activeTab, setActiveTab] = useState("Home");
+
+  // Add useEffect to ensure Home tab is selected on initial render
+  useEffect(() => {
+    if (!activeTab) {
+      setActiveTab("Home");
+    }
+  }, [activeTab]);
 
   // Pass the activeTab state and setActiveTab function to the SidebarContext provider
   return (

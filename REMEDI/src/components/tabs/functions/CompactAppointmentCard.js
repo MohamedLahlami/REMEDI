@@ -8,7 +8,6 @@ import {
   Badge,
   Icon,
   Tooltip,
-  Divider,
   HStack,
   useColorModeValue,
 } from "@chakra-ui/react";

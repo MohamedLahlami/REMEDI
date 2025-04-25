@@ -15,7 +15,6 @@ import {
   Select,
   InputGroup,
   InputRightElement,
-  Stack,
   IconButton,
   HStack,
   NumberInput,
@@ -25,7 +24,6 @@ import {
   NumberDecrementStepper,
   FormHelperText,
   Text,
-  Box,
 } from '@chakra-ui/react';
 import { useDisclosure } from '@chakra-ui/react';
 import { AddIcon, MinusIcon } from '@chakra-ui/icons';

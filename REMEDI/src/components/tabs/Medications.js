@@ -19,7 +19,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Input,
   FormControl,
   FormLabel,
   NumberInput,
@@ -28,7 +27,6 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
   useToast,
-  Tooltip,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import AddMed from "./functions/AddMed";

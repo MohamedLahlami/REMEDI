@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Flex,
   Text,
   Heading,
-  Badge,
-  useToast,
   Divider,
   Alert,
   AlertIcon,
@@ -17,7 +14,6 @@ import {
 import { firestore, auth } from "../../firebase/firebase.js";
 import MedAlert from "./functions/MedAlert";
 import RefillAlert from "./functions/RefillAlert";
-import firebase from "firebase/compat/app";
 import { useNotificationService } from "../../utils/notificationService";
 import CompactMedicationCard from "./functions/CompactMedicationCard";
 import CompactAppointmentCard from "./functions/CompactAppointmentCard";
@@ -30,7 +26,6 @@ function Home() {
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
   const [loadingAppointments, setLoadingAppointments] = useState(true);
   const [allAppointments, setAllAppointments] = useState([]);
-  const toast = useToast();
   const columnCount = useBreakpointValue({ base: 1, md: 2 });
 
   // Get notification service functions

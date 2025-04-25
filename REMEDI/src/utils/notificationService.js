@@ -133,13 +133,6 @@ export const useNotificationService = () => {
     if (!user || notificationPermissionStatus !== "granted") return;
 
     const now = new Date();
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-
-    // Format current time for comparison (HH:MM format)
-    const currentTimeString = `${currentHour
-      .toString()
-      .padStart(2, "0")}:${currentMinute.toString().padStart(2, "0")}`;
 
     try {
       const userId = user.uid;

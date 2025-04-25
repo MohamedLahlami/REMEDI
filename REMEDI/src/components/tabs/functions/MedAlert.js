@@ -1,18 +1,14 @@
-import React from 'react';
+import React from "react";
 import {
   Alert,
   AlertIcon,
   AlertTitle,
   AlertDescription,
   Box,
-  Button,
-} from '@chakra-ui/react';
-import { useDisclosure } from '@chakra-ui/react';
-import AddMed from './AddMed';
+} from "@chakra-ui/react";
+import AddMed from "./AddMed";
 
 function MedAlert() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
   return (
     <Box mt={5}>
       <Alert
@@ -30,7 +26,8 @@ function MedAlert() {
           No medications found
         </AlertTitle>
         <AlertDescription maxWidth="sm">
-          You don't have any medications scheduled. Click the button below to add a medication.
+          You don't have any medications scheduled. Click the button below to
+          add a medication.
         </AlertDescription>
         <Box mt={4}>
           <AddMed />

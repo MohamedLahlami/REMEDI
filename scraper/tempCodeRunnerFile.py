@@ -1,16 +1,3 @@
-import requests
-from bs4 import BeautifulSoup
-import json
-import string
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-BASE_URL = os.getenv("BASE_URL")
-HEADERS = {
-    "User-Agent": "Mozilla/5.0"
-}
-
 def extract_medications_from_page(soup):
     table = soup.find("table", class_="table")
     if not table:

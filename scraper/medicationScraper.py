@@ -60,7 +60,7 @@ def scrape_all_medications():
 if __name__ == "__main__":
     meds = scrape_all_medications()
 
-    with open("medications.json", "w", encoding="utf-8") as f:
+    with open(r"../REMEDI/src/data/medications.json", "w", encoding="utf-8") as f:
         json.dump(meds, f, indent=2, ensure_ascii=False)
 
     print(f"Finished scraping. Total medications collected: {len(meds)}")

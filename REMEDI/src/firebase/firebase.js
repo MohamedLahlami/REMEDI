@@ -14,9 +14,12 @@ const firebaseConfig = {
   measurementId: "G-CK07Y7PJBQ",
 };
 
-// Initialize Firebase
+// Initialize Firebase for modular API
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+
+// Initialize Firebase for compat API
+firebase.initializeApp(firebaseConfig);
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();

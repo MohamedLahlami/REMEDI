@@ -1,48 +1,90 @@
-import { Input, Box, List, ListItem, Spinner, Heading, Text } from '@chakra-ui/react';
-import { SearchIcon } from '@chakra-ui/icons';
-import React, { useState, useEffect } from 'react';
-import medicationData from '../../../data/medications.json';
-import { fetchMedicationInfo } from '../../../api/open_fda.js'; 
-
-function searchBrandNames(inputName) {
-  const medication = medicationData.medications.find(
-    (medication) => medication.name.toLowerCase() === inputName.toLowerCase()
-  );
-
-  if (medication) {
-    return medication.brandNames;
-  }
-
-  return [];
-}
+import {
+  Input,
+  Box,
+  List,
+  ListItem,
+  Spinner,
+  Heading,
+  Text,
+} from "@chakra-ui/react";
+import { SearchIcon } from "@chakra-ui/icons";
+import React, { useState, useEffect } from "react";
+import medicationData from "../../../data/medications.json";
+import { fetchMedicationInfo } from "../../../api/open_fda.js";
 
 function LookupSearch() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [matchedTerms, setMatchedTerms] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMedication, setSelectedMedication] = useState(null);
-  const [dosingInformation, setDosingInformation] = useState('');
-  const [medicationDescription, setMedicationDescription] = useState('');
+  const [dosingInformation, setDosingInformation] = useState("");
+  const [medicationDescription, setMedicationDescription] = useState("");
+  const [allMedications, setAllMedications] = useState([]);
+
+  // Initialize medications on component mount
+  useEffect(() => {
+    try {
+      if (Array.isArray(medicationData)) {
+        setAllMedications(medicationData);
+        console.log(`Loaded ${medicationData.length} medications successfully`);
+      } else {
+        console.error(
+          "Medication data is not an array:",
+          typeof medicationData
+        );
+        setAllMedications([]);
+      }
+    } catch (error) {
+      console.error("Error loading medication data:", error);
+      setAllMedications([]);
+    }
+  }, []);
 
   const handleInputChange = (event) => {
     const inputValue = event.target.value;
     setSearchTerm(inputValue);
 
-    if (inputValue.trim() === '') {
+    if (!inputValue || inputValue.trim() === "") {
       setMatchedTerms([]);
       return;
     }
 
-    const filteredTerms = medicationData.medications.filter((medication) =>
-      medication.name.toLowerCase().includes(inputValue.toLowerCase()) ||
-      medication.brandNames.some((brandName) =>
-        brandName.toLowerCase().includes(inputValue.toLowerCase())
-      )
+    // Simple but effective search
+    const searchLower = inputValue.toLowerCase();
+
+    // Split into two groups: starting with search term vs containing search term
+    const startsWithMatches = [];
+    const containsMatches = [];
+
+    allMedications.forEach((med) => {
+      if (!med || !med.name) return;
+
+      const nameLower = med.name.toLowerCase();
+
+      // Check if it starts with the search term
+      if (nameLower.startsWith(searchLower)) {
+        startsWithMatches.push(med);
+      }
+      // If it doesn't start with but contains the search term
+      else if (nameLower.includes(searchLower)) {
+        containsMatches.push(med);
+      }
+    });
+
+    // Sort each group alphabetically
+    startsWithMatches.sort((a, b) => a.name.localeCompare(b.name));
+    containsMatches.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Combine the two groups with startsWithMatches first
+    const combinedResults = [...startsWithMatches, ...containsMatches];
+
+    // Log for debugging
+    console.log(
+      `Found ${combinedResults.length} matches (${startsWithMatches.length} starting with "${inputValue}")`
     );
 
-    const limitedTerms = filteredTerms.slice(0, 5);
-
-    setMatchedTerms(limitedTerms);
+    // Limit to top 5 results
+    setMatchedTerms(combinedResults.slice(0, 5));
   };
 
   const handleItemClick = (medication) => {
@@ -53,7 +95,16 @@ function LookupSearch() {
   };
 
   const handleSearchClick = () => {
-    setIsLoading(true);
+    if (!searchTerm.trim()) return;
+
+    const medication = allMedications.find(
+      (med) => med.name && med.name.toLowerCase() === searchTerm.toLowerCase()
+    );
+
+    if (medication) {
+      setSelectedMedication(medication);
+      setIsLoading(true);
+    }
   };
 
   useEffect(() => {
@@ -62,10 +113,12 @@ function LookupSearch() {
         .then((data) => {
           setDosingInformation(data.dosages);
           setMedicationDescription(data.description);
+          setIsLoading(false);
         })
         .catch((error) => {
-          console.error('Error fetching medication information:', error);
-          setDosingInformation('Error fetching dosing information');
+          console.error("Error fetching medication information:", error);
+          setDosingInformation("Error fetching dosing information");
+          setIsLoading(false);
         });
     }
   }, [selectedMedication]);
@@ -116,12 +169,17 @@ function LookupSearch() {
                   <ListItem
                     key={index}
                     cursor="pointer"
-                    _hover={{ background: 'blue.50' }}
+                    _hover={{ background: "blue.50" }}
                     onClick={() => handleItemClick(medication)}
                     p={2}
                     borderRadius="md"
                   >
-                    {medication.brandNames[0]} ({medication.name})
+                    {medication.name}
+                    {medication.description && (
+                      <Box as="span" fontSize="sm" color="gray.600" ml={1}>
+                        ({medication.description})
+                      </Box>
+                    )}
                   </ListItem>
                 ))}
               </List>
@@ -137,12 +195,22 @@ function LookupSearch() {
             <Heading textAlign="left" size="lg">
               {selectedMedication.name}
             </Heading>
-            <Text color="gray.600" marginTop="10px">
-              <Text fontWeight="bold" display="inline">
-                Brand name(s):
-              </Text>{' '}
-              {searchBrandNames(selectedMedication.name).join(', ')}
-            </Text>
+            {selectedMedication.description && (
+              <Text color="gray.600" marginTop="10px">
+                <Text fontWeight="bold" display="inline">
+                  Description:
+                </Text>{" "}
+                {selectedMedication.description}
+              </Text>
+            )}
+            {selectedMedication.ppv && (
+              <Text color="green.600" marginTop="10px">
+                <Text fontWeight="bold" display="inline">
+                  Price:
+                </Text>{" "}
+                {selectedMedication.ppv}
+              </Text>
+            )}
             <Heading textAlign="left" size="md" marginTop="30px">
               What is {selectedMedication.name}?
             </Heading>
@@ -150,9 +218,7 @@ function LookupSearch() {
             <Heading textAlign="left" size="md" marginTop="30px">
               Dosing information
             </Heading>
-            <Text marginTop="10px">
-            {dosingInformation}
-            </Text>
+            <Text marginTop="10px">{dosingInformation}</Text>
           </Box>
         )}
       </Box>

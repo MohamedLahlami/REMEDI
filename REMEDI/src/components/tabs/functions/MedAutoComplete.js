@@ -1,33 +1,71 @@
 import { Input, Box, UnorderedList, ListItem } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import medicationData from '../../../data/medications.json';
 
 function MedAutoComplete({ value, onChange }) {
   const [searchTerm, setSearchTerm] = useState(value);
   const [matchedTerms, setMatchedTerms] = useState([]);
+  const [allMedications, setAllMedications] = useState([]);
+
+  // Initialize medications on component mount
+  useEffect(() => {
+    try {
+      if (Array.isArray(medicationData)) {
+        setAllMedications(medicationData);
+      } else {
+        console.error("Medication data is not an array:", typeof medicationData);
+        setAllMedications([]);
+      }
+    } catch (error) {
+      console.error("Error loading medication data:", error);
+      setAllMedications([]);
+    }
+  }, []);
 
   const handleInputChange = (event) => {
     const inputValue = event.target.value;
     setSearchTerm(inputValue);
 
-    if (inputValue.trim() === '') {
+    // Pass the value to the parent component
+    onChange(inputValue);
+
+    if (!inputValue || inputValue.trim() === '') {
       setMatchedTerms([]);
       return;
     }
 
-    // Filter the medicationData based on the input value in medication names
-    const filteredTerms = medicationData.filter((medication) =>
-      medication.name.toLowerCase().includes(inputValue.toLowerCase())
-    );
-
-    // Limit the matched terms to a maximum of 5 results
-    const limitedTerms = filteredTerms.slice(0, 5);
-
-    setMatchedTerms(limitedTerms);
-
-    // Pass the value to the parent component
-    onChange(inputValue);
+    // Search with prioritization of matches that start with the search term
+    const searchLower = inputValue.toLowerCase();
+    
+    // Split into two groups: starting with search term vs containing search term
+    const startsWithMatches = [];
+    const containsMatches = [];
+    
+    allMedications.forEach(med => {
+      if (!med || !med.name) return;
+      
+      const nameLower = med.name.toLowerCase();
+      
+      // Check if it starts with the search term
+      if (nameLower.startsWith(searchLower)) {
+        startsWithMatches.push(med);
+      }
+      // If it doesn't start with but contains the search term
+      else if (nameLower.includes(searchLower)) {
+        containsMatches.push(med);
+      }
+    });
+    
+    // Sort each group alphabetically
+    startsWithMatches.sort((a, b) => a.name.localeCompare(b.name));
+    containsMatches.sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Combine the two groups with startsWithMatches first
+    const combinedResults = [...startsWithMatches, ...containsMatches];
+    
+    // Limit to top 5 results
+    setMatchedTerms(combinedResults.slice(0, 5));
   };
 
   const handleItemClick = (medication) => {
@@ -37,7 +75,6 @@ function MedAutoComplete({ value, onChange }) {
     // Pass the value to the parent component
     onChange(medication.name);
   };
-
 
   return (
     <>
